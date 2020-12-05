@@ -46,3 +46,17 @@ client.run('token')
 
 ## Events
 
+Events are a bit of code that runs when the bot detects that a specific activity has happened.
+
+For example we can create an event to print something out when someone joins our server:
+
+```python
+@client.event
+async def on_member_join(member):
+    print(F'{member} has joined a server.')
+```
+
+Very simple and basic. There are many more events and we will use them a little later.
+
+## Commands
+
