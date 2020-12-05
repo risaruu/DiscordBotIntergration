@@ -51,8 +51,9 @@ Events are a bit of code that runs when the bot detects that a specific activity
 For example we can create an event to print something out when someone joins our server:
 
 ```python
+#decorator for an event
 @client.event
-async def on_member_join(member):
+async def on_member_join(member): #on_member_join is in the docs pre defined
     print(F'{member} has joined a server.')
 ```
 
@@ -60,3 +61,4 @@ Very simple and basic. There are many more events and we will use them a little 
 
 ## Commands
 
+A command is a piece of code that is triggered when a user tells the bot to run the code.
