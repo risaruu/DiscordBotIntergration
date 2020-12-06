@@ -1,46 +1,59 @@
-from statistics import mean
+# -----------------------------------------------------------
+# A simple discord bot integration with many useful commands
+# this is mainly a learning tool on how to program a bot and
+# use api's to get data as well as analyzing and displaying data
+#
+# (C) 2020 Damjan Petrovic, Vienna, Austria
+# email p.damjan7999@gmail.com
+# -----------------------------------------------------------
 
+# Imports
+from statistics import mean
 import discord
 import requests
-import re
 import random
 from discord.ext import commands
 
+# reading the Keys to the API as well as to the discord bot
 file = open('Keys/bottoken.txt')
 token = file.read()
-
 apiKeyFile = open('Keys/apikey.txt')
 apiKey = apiKeyFile.read()
 
+# setting a prefix for the bot to recognize commands on discord server
 client = commands.Bot(command_prefix= '.')
 
-#Event to see when the bot is online and ready to use
+# event to see when the bot is online and ready to use
 @client.event
 async def on_ready():
     print('Bot is ready.')
 
-#Event to print out when someone joined the server
+# event to print out when someone joined the server
 @client.event
 async def on_member_join(member):
-    print(F'{member} has joined a server.')
+    print(f'{member} has joined a server.')
 
-#Event to print out when someone left the server
+# event to print out when someone left the server
 @client.event
 async def on_member_remove(member):
-    print(F'{member} has left a server.')
+    print(f'{member} has left a server.')
 
-#Ping command to get latency of the bot
+# ping command,used to get latency of the bot
 @client.command()
 async def ping(ctx):
     await ctx.send(f'Pong! {round(client.latency * 1000)}ms')
 
-#Command to clear messages
+# clear command, used to clear text messages on the discord
+# Parameters:
+# amount - int of how many message the command shall clear, default to 1
 @client.command()
 async def clear(ctx, amount=1):
     amount = amount + 1
     await ctx.channel.purge(limit=amount)
 
-#Simple 8ball command to get some responses
+# 8ball command, you can ask a yes/no/maybe question and you will get a random answer
+# Parameters:
+# question - String with a question message from the user
 @client.command(aliases=['frage'])
 async def eightBall(ctx, *, question):
     responses = [ "It is certain.",
@@ -69,13 +82,19 @@ async def eightBall(ctx, *, question):
 #--- Riot Games API functionality ---
 #------------------------------------
 
-#Function to get the basic summoner data of a given summoner
+# Function to get the basic summoner data of a given summoner
+# Parameters:
+# summonerName - username string to search the database for
+# returns - .json-File with RiotGamesSummonerData in it
 def getSummoner(summonerName):
     url = 'https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summonerName + '?api_key=' + apiKey
     response = requests.get(url)
     return response.json()
 
-#Function to get the specific ranked data of a given summoner
+# Function to get the specific ranked data of a given summoner
+# Parameters:
+# summonerName - username string to search the database for
+# returns - .json-File with RiotGamesRankedData in it
 def getRankedStats(summonerName):
     customerData = getSummoner(summonerName)
     summonerId = customerData["id"]
@@ -83,12 +102,20 @@ def getRankedStats(summonerName):
     response = requests.get(url)
     return response.json()
 
-#Function to simply calculate the winrate out of the wins and losses of an Account
+# Function to simply calculate the winrate out of the wins and losses of an Account
+# Parameters:
+# x - first number to use (Wins)
+# y - second number to use (Losses)
+# returns - String with a number
 def calculateWinrate(x, y):
     z = x + y
     z_formatted = round(x / z * 100, 2)
     return str(z_formatted)
 
+# Function to get the match history of a given summoner
+# Parameters:
+# summonerName - username string to search the database for
+# returns - .json-File with RiotGamesMatchData in it
 def getMatchHistory(summonerName):
     customerData = getSummoner(summonerName)
     accountId = customerData["accountId"]
@@ -96,26 +123,33 @@ def getMatchHistory(summonerName):
     response = requests.get(url)
     return response.json()
 
+# Function to get the stats of a given summoner out of a given match
+# Parameters:
+# matchId - matchId to search the database for
+# returns - .json-File with RiotGamesMatchStatsData in it
 def getMatchStats(matchId):
     url = "https://euw1.api.riotgames.com/lol/match/v4/matches/" + str(matchId) + "?api_key=" + apiKey
     response = requests.get(url)
     return response.json()
 
-def getMean(list):
-    return mean(list)
-
-#command to get the league stats with a summoner name as parameter
-#@client.command(aliases=['lolstats'])
+# Function to combine all data gavering, process the data and combine it to a single message output
+# Parameters:
+# username - username string to search the database for
+# returns - String with all the processed data
 def lolStats(username):
     message = ""
 
+    #setting the .json files
     summonerData = getSummoner(username)
     summonerDataRanked = getRankedStats(username)
+
+    # variables to set default values as well as to save basic data
     queue = ""
     rank = ""
     winrate = ""
     noRanked = False
 
+    # lists to save the match data in
     games = []
     championId = []
     championsPlayed = []
@@ -125,7 +159,7 @@ def lolStats(username):
     totalDamageDealt = []
     visionScore = []
 
-    #try to always get the solo/duo Ranked stats
+    # try and except to always get the solo/duo Ranked stats and catch the error that would occur if there are no ranked games detected
     try:
         if summonerDataRanked[0]["queueType"] == "RANKED_SOLO_5x5":
             queue = "Ranked Solo/Duo"
@@ -138,12 +172,13 @@ def lolStats(username):
     except:
         noRanked = True
 
-    # gettint the match history and creating a list of the champions played to later get specific stats out of the match stats
+    # gettint the match history and creating a list of the champions played to later gather the stats of the player out of all playerstats in the match data json
     matchHistory = getMatchHistory(username)
     for each in matchHistory["matches"]:
         games.append(each["gameId"])
         championsPlayed.append(each["champion"])
 
+    # gathering all specified data from our user out of the json file and putting the data into lists
     for z in range(0, 10):
         matchData = getMatchStats(games[z])
         for part in matchData["participants"]:
@@ -163,17 +198,20 @@ def lolStats(username):
         message = message + f'Dieser Spieler hat keine Ranked Games gemacht :C\n'
 
     #adding KDA to message
-    message = message + f'Match Stats für die letzten 50 Games: \nKDA: **{"{:.2f}".format((getMean(kills) + getMean(assists)) / getMean(deaths))}** - {getMean(kills)} / {getMean(deaths)} / {getMean(assists)}\n'
+    message = message + f'Match Stats für die letzten 50 Games: \nKDA: **{"{:.2f}".format((mean(kills) + mean(assists)) / mean(deaths))}** - {mean(kills)} / {mean(deaths)} / {mean(assists)}\n'
 
     #adding totalDamageDealt to message
-    message = message + f'Total Damage dealt to Champions: **{"{:.2f}".format(getMean(totalDamageDealt))}**\n'
+    message = message + f'Total Damage dealt to Champions: **{"{:.2f}".format(mean(totalDamageDealt))}**\n'
 
     #adding VisionScore to message
-    message = message + f'Vision Score: **{"{:.2f}".format(getMean(visionScore))}**'
+    message = message + f'Vision Score: **{"{:.2f}".format(mean(visionScore))}**'
 
     #sending message text
     return(message)
 
+# lolstats command, uses the defined lolStats function to print out a loading message and the collected data
+# Parameters:
+# question - String with a question message from the user
 @client.command(aliases=['lolstats'])
 async def messageStats(ctx, *, username):
     message = 'Fetching Data from Riot Games... \n'
@@ -184,4 +222,5 @@ async def messageStats(ctx, *, username):
         except:
             message = 'There is no summoner with that name, you tricked me :C'
 
+# running the bot with the given bot token
 client.run(token)

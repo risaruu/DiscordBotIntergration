@@ -24,7 +24,7 @@ pip install discord.py
 
   In the next step you will need to sign in at: https://discord.com/developers/applications with your discord account. There you can create a new application and set the application as a bot under the bot menu.
 
-## Setup
+## Example
 
 At first we will create a simple bot that just works, we will later go into the full details of how everything works:
 
@@ -44,26 +44,5 @@ async def on_ready():
 client.run('token')
 ```
 
-## Events
 
-Events are a bit of code that runs when the bot detects that a specific activity has happened.
-
-For example we can create an event to print something out when someone joins our server:
-
-```python
-#decorator for an event
-@client.event
-async def on_member_join(member): #on_member_join is in the docs pre defined
-    print(F'{member} has joined a server.')
-```
-
-Very simple and basic. There are many more events and we will use them a little later.
-
-## Commands
-
-A command is a piece of code that is triggered when a user tells the bot to run the code.
-
-```
-
-```
 
