@@ -1,3 +1,5 @@
+from statistics import mean
+
 import discord
 import requests
 import re
@@ -63,12 +65,38 @@ async def eightBall(ctx, *, question):
                   "Very doubtful."]
     await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
 
+#------------------------------------
+#--- Riot Games API functionality ---
+#------------------------------------
+
 #Function to get the basic summoner data of a given summoner
 def getSummoner(summonerName):
     url = 'https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summonerName + '?api_key=' + apiKey
     response = requests.get(url)
     return response.json()
 
+#Function to simply calculate the winrate out of the wins and losses of an Account
+def calculateWinrate(x, y):
+    z = x + y
+    z_formatted = round(x / z * 100, 2)
+    return str(z_formatted)
+
+def getMatchHistory(summonerName):
+    customerData = getSummoner(summonerName)
+    accountId = customerData["accountId"]
+    url = 'https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + accountId + '?endIndex=10&api_key=' + apiKey
+    response = requests.get(url)
+    return response.json()
+
+def getMatchStats(matchId):
+    url = "https://euw1.api.riotgames.com/lol/match/v4/matches/" + str(matchId) + "?api_key=" + apiKey
+    response = requests.get(url)
+    return response.json()
+
+def getMean(list):
+    return mean(list)
+
+#command to get the league stats with a summoner name as parameter
 @client.command(aliases=['lolstats'])
 async def lolStats(ctx, *, username):
     summonerData = getSummoner(username)
