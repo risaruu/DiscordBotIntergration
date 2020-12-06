@@ -12,12 +12,6 @@ apiKey = apiKeyFile.read()
 
 client = commands.Bot(command_prefix= '.')
 
-#Function to get the basic summoner data of a given summoner
-def getSummoner(summonerName):
-    url = 'https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summonerName + '?api_key=' + apiKey
-    response = requests.get(url)
-    return response.json()
-
 #Event to see when the bot is online and ready to use
 @client.event
 async def on_ready():
@@ -37,6 +31,12 @@ async def on_member_remove(member):
 @client.command()
 async def ping(ctx):
     await ctx.send(f'Pong! {round(client.latency * 1000)}ms')
+
+#Command to clear messages
+@client.command()
+async def clear(ctx, amount=1):
+    amount = amount + 1
+    await ctx.channel.purge(limit=amount)
 
 #Simple 8ball command to get some responses
 @client.command(aliases=['frage'])
@@ -62,6 +62,12 @@ async def eightBall(ctx, *, question):
                   "Outlook not so good.",
                   "Very doubtful."]
     await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
+
+#Function to get the basic summoner data of a given summoner
+def getSummoner(summonerName):
+    url = 'https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summonerName + '?api_key=' + apiKey
+    response = requests.get(url)
+    return response.json()
 
 @client.command(aliases=['lolstats'])
 async def lolStats(ctx, *, username):
