@@ -1,11 +1,22 @@
 import discord
+import requests
+import re
 import random
 from discord.ext import commands
 
 file = open('token.txt')
 token = file.read()
 
+apiKeyFile = open('apikey.txt')
+apiKey = apiKeyFile.read()
+
 client = commands.Bot(command_prefix= '.')
+
+#Function to get the basic summoner data of a given summoner
+def getSummoner(summonerName):
+    url = 'https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summonerName + '?api_key=' + apiKey
+    response = requests.get(url)
+    return response.json()
 
 #Event to see when the bot is online and ready to use
 @client.event
@@ -28,7 +39,7 @@ async def ping(ctx):
     await ctx.send(f'Pong! {round(client.latency * 1000)}ms')
 
 #Simple 8ball command to get some responses
-@client.command(aliases=['8ball'])
+@client.command(aliases=['frage'])
 async def eightBall(ctx, *, question):
     responses = [ "It is certain.",
                   "It is decidedly so.",
@@ -51,5 +62,10 @@ async def eightBall(ctx, *, question):
                   "Outlook not so good.",
                   "Very doubtful."]
     await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
+
+@client.command(aliases=['lolstats'])
+async def lolStats(ctx, *, username):
+    summonerData = getSummoner(username)
+    await ctx.send(f'{summonerData["name"]} ist gerade Lv. {summonerData["summonerLevel"]}')
 
 client.run(token)

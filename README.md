@@ -62,3 +62,8 @@ Very simple and basic. There are many more events and we will use them a little 
 ## Commands
 
 A command is a piece of code that is triggered when a user tells the bot to run the code.
+
+```
+
+```
+
