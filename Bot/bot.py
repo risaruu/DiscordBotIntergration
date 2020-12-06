@@ -339,7 +339,7 @@ def championIdToText(championId):
 # username - username string to search the database for
 # returns - String with all the processed data
 def lolStats(username):
-    print("Started gathering Data")
+    print("Gathering RiotGamesAPI data...")
     message = ""
 
     # setting the .json files
@@ -396,8 +396,12 @@ def lolStats(username):
                 assists.append(part["stats"]["assists"])
                 totalDamageDealt.append(part["stats"]["totalDamageDealtToChampions"])
                 visionScore.append(part["stats"]["visionScore"])
+                if z == 25:
+                    print("Halfway there...")
 
     top_3 = mostCommonThree(championsPlayed)
+
+    print('Finished gathering data \nCreating text message...')
 
     # creating the message text
     message = message + f'**{summonerData["name"]}** ist gerade Lv. {summonerData["summonerLevel"]} \n\n'
@@ -421,7 +425,7 @@ def lolStats(username):
     # adding most common three champions
     message = message + f'Top 3 Champions: **{championIdToText(top_3[0])}** | **{championIdToText(top_3[1])}** | **{championIdToText(top_3[2])}**\n'
 
-    print("Finished gathering Data, ready to Print")
+    print("Finished creating text message")
 
     # sending message text
     return (message)
