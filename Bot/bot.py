@@ -6,10 +6,10 @@ import re
 import random
 from discord.ext import commands
 
-file = open('token.txt')
+file = open('Bot/Keys/'+'bottoken.txt')
 token = file.read()
 
-apiKeyFile = open('apikey.txt')
+apiKeyFile = open('Bot/Keys/'+'apikey.txt')
 apiKey = apiKeyFile.read()
 
 client = commands.Bot(command_prefix= '.')
