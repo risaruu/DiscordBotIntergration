@@ -105,8 +105,8 @@ def getMean(list):
     return mean(list)
 
 #command to get the league stats with a summoner name as parameter
-@client.command(aliases=['lolstats'])
-async def lolStats(ctx, *, username):
+#@client.command(aliases=['lolstats'])
+def lolStats(username):
     message = ""
 
     summonerData = getSummoner(username)
@@ -172,6 +172,16 @@ async def lolStats(ctx, *, username):
     message = message + f'Vision Score: **{"{:.2f}".format(getMean(visionScore))}**'
 
     #sending message text
-    await ctx.send(message)
+    return(message)
+
+@client.command(aliases=['lolstats'])
+async def messageStats(ctx, *, username):
+    message = 'Fetching Data from Riot Games... \n'
+    for y in range(2):
+        await ctx.send(message)
+        try:
+            message = lolStats(username)
+        except:
+            message = 'There is no summoner with that name, you tricked me :C'
 
 client.run(token)
