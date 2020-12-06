@@ -75,6 +75,14 @@ def getSummoner(summonerName):
     response = requests.get(url)
     return response.json()
 
+#Function to get the specific ranked data of a given summoner
+def getRankedStats(summonerName):
+    customerData = getSummoner(summonerName)
+    summonerId = customerData["id"]
+    url = 'https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerId + '?api_key=' + apiKey
+    response = requests.get(url)
+    return response.json()
+
 #Function to simply calculate the winrate out of the wins and losses of an Account
 def calculateWinrate(x, y):
     z = x + y
@@ -99,7 +107,33 @@ def getMean(list):
 #command to get the league stats with a summoner name as parameter
 @client.command(aliases=['lolstats'])
 async def lolStats(ctx, *, username):
+    message = ""
+
     summonerData = getSummoner(username)
-    await ctx.send(f'{summonerData["name"]} ist gerade Lv. {summonerData["summonerLevel"]}')
+    summonerDataRanked = getRankedStats(username)
+    queue = ""
+    rank = ""
+    winrate = ""
+    noRanked = False
+
+    try:
+        if summonerDataRanked[0]["queueType"] == "RANKED_SOLO_5x5":
+            queue = "Ranked Solo/Duo"
+            rank = "Tier: " + summonerDataRanked[0]["tier"] + " " + summonerDataRanked[0]["rank"]
+            winrate = calculateWinrate(summonerDataRanked[0]["wins"], summonerDataRanked[0]["losses"])
+        elif summonerDataRanked[0]["queueType"] != "RANKED_SOLO_5x5":
+            queue = "Ranked Solo/Duo"
+            rank = "Tier: " + summonerDataRanked[1]["tier"] + " " + summonerDataRanked[1]["rank"]
+            winrate = str(calculateWinrate(summonerDataRanked[1]["wins"], summonerDataRanked[1]["losses"]))
+    except:
+        noRanked = True
+
+    message = message + f'{summonerData["name"]} ist gerade Lv. {summonerData["summonerLevel"]} \n\n'
+    if noRanked == False:
+        message = message + f'Stats in den letzten 50 Games für: {queue} \nRank: {rank} mit einer Winrate von {winrate}%'
+    else:
+        message = message + f'Dieser Spieler hat keine Ranked Games gemacht :C'
+
+    await ctx.send(message)
 
 client.run(token)
