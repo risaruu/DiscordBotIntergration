@@ -78,6 +78,19 @@ async def eightBall(ctx, *, question):
                   "Very doubtful."]
     await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
 
+# lolstats command, uses the defined lolStats function to print out a loading message and the collected data
+# Parameters:
+# question - String with a question message from the user
+@client.command(aliases=['lolstats'])
+async def messageStats(ctx, *, username):
+    message = 'Fetching Data from Riot Games... \n'
+    for y in range(2):
+        await ctx.send(message)
+        try:
+            message = lolStats(username)
+        except:
+            message = 'There is no summoner with that name, you tricked me :C'
+
 #------------------------------------
 #--- Riot Games API functionality ---
 #------------------------------------
@@ -208,19 +221,6 @@ def lolStats(username):
 
     #sending message text
     return(message)
-
-# lolstats command, uses the defined lolStats function to print out a loading message and the collected data
-# Parameters:
-# question - String with a question message from the user
-@client.command(aliases=['lolstats'])
-async def messageStats(ctx, *, username):
-    message = 'Fetching Data from Riot Games... \n'
-    for y in range(2):
-        await ctx.send(message)
-        try:
-            message = lolStats(username)
-        except:
-            message = 'There is no summoner with that name, you tricked me :C'
 
 # running the bot with the given bot token
 client.run(token)

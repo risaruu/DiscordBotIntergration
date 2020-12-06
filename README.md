@@ -1,14 +1,25 @@
-# DiscordBotIntergration
+# DiscordBotIntergration - learning to code a Discord Bot
 
 ## By Damjan Petrovic
 
-Creating a discord bot to utilize on private server as well to integrate future projects into it. In this project we will go step through step to create a discord bot and fuel it with features to help organize and have some fun on our discord server. You can also integrate your own private projects into this as I will later do hopefully.
+Creating a discord bot to utilize on private server as well as to integrate future projects into it. In this project ill go and create a Discord Bot with different functionalitys to use on any discord server. The main feature will be a algorithm that analyzes your data from the game League of Legends and grades your permance as well as giving helpful tips to help you get better at the game.
 
-Helpful ressources:
+This is mainly a project to learn how to code a Discord bot as well as how to use the RiotGames API.
 
-https://github.com/Rapptz/discord.py
-https://discordpy.readthedocs.io/en/latest/
-https://www.youtube.com/watch?v=nW8c7vT6Hl4&list=PLW3GfRiBCHOhfVoiDZpSz8SM_HybXRPzZ
+## To-do List 
+
+- [x] get the Bot up and running on a Server
+- [x] create some basic events and commands
+- [x] create 8ball to answer simple questions randomly
+- [x] create connection to RiotGamesAPI
+- [x] grab data out of the RiotGamesAPI
+- [x] process data out of the RiotGamesAPI
+- [x] display processed data
+- [ ] further process the data in a algorithm to give users a school grade on their performance
+- [ ] create music bot functionality
+- [ ] create a news ticker to display news in a specific channel
+- [ ] create automatic role distribution
+- [ ] ...
 
 ## Prerequisites
 
@@ -44,5 +55,8 @@ async def on_ready():
 client.run('token')
 ```
 
+#### Helpful Ressources
 
-
+https://github.com/Rapptz/discord.py
+https://discordpy.readthedocs.io/en/latest/
+https://www.youtube.com/watch?v=nW8c7vT6Hl4&list=PLW3GfRiBCHOhfVoiDZpSz8SM_HybXRPzZ
