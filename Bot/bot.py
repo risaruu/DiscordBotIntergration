@@ -13,6 +13,7 @@ import discord
 import requests
 import random
 from discord.ext import commands
+from collections import Counter
 
 # reading the Keys to the API as well as to the discord bot
 file = open('Keys/bottoken.txt')
@@ -145,7 +146,24 @@ def getMatchStats(matchId):
     response = requests.get(url)
     return response.json()
 
-# Function to combine all data gavering, process the data and combine it to a single message output
+# Function to get most common three elements out of a list
+# Parameters:
+# list - a list with elements
+# returns - a list containing the 3 most common items sorted from most to least
+def mostCommonThree(liste):
+    word_counter = {}
+    for word in liste:
+        if word in word_counter:
+            word_counter[word] += 1
+        else:
+            word_counter[word] = 1
+
+    popular_words = sorted(word_counter, key=word_counter.get, reverse=True)
+    top_3 = popular_words[:3]
+
+    return top_3
+
+# Function to combine all data gathering, process the data and combine it to a single message output
 # Parameters:
 # username - username string to search the database for
 # returns - String with all the processed data
@@ -205,6 +223,8 @@ def lolStats(username):
                 totalDamageDealt.append(part["stats"]["totalDamageDealtToChampions"])
                 visionScore.append(part["stats"]["visionScore"])
 
+    top_3 = mostCommonThree(championsPlayed)
+
     #creating the message text
     message = message + f'**{summonerData["name"]}** ist gerade Lv. {summonerData["summonerLevel"]} \n\n'
     if noRanked == False:
@@ -216,12 +236,16 @@ def lolStats(username):
     message = message + f'Match Stats für die letzten 50 Games: \nKDA: **{"{:.2f}".format((mean(kills) + mean(assists)) / mean(deaths))}** - {mean(kills)} / {mean(deaths)} / {mean(assists)}\n'
 
     #adding totalDamageDealt to message
-    message = message + f'DPS: **{"{:.2f}".format(mean(totalDamageDealt) / (mean(gameLength) / 60)) }**\n'
+    message = message + f'DPS to Champions: **{"{:.2f}".format(mean(totalDamageDealt) / (mean(gameLength) / 60)) }**\n'
 
     #adding VisionScore to message
     message = message + f'Vision Score: **{"{:.2f}".format(mean(visionScore))}** \n'
 
-    message = message + f'Durchschnittliche Spiellänge: **{"{:.2f}".format(mean(gameLength) / 60)} min.**'
+    #adding game length
+    message = message + f'Durchschnittliche Spiellänge: **{"{:.2f}".format(mean(gameLength) / 60)} min.**\n'
+
+
+    message = message + f'Top 3 Champions: **{top_3}**\n'
 
     #sending message text
     return(message)
