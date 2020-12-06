@@ -132,7 +132,7 @@ def calculateWinrate(x, y):
 def getMatchHistory(summonerName):
     customerData = getSummoner(summonerName)
     accountId = customerData["accountId"]
-    url = 'https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + accountId + '?endIndex=10&api_key=' + apiKey
+    url = 'https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + accountId + '?endIndex=50&api_key=' + apiKey
     response = requests.get(url)
     return response.json()
 
@@ -171,6 +171,7 @@ def lolStats(username):
     assists = []
     totalDamageDealt = []
     visionScore = []
+    gameLength = []
 
     # try and except to always get the solo/duo Ranked stats and catch the error that would occur if there are no ranked games detected
     try:
@@ -192,8 +193,9 @@ def lolStats(username):
         championsPlayed.append(each["champion"])
 
     # gathering all specified data from our user out of the json file and putting the data into lists
-    for z in range(0, 10):
+    for z in range(0, 50):
         matchData = getMatchStats(games[z])
+        gameLength.append(matchData["gameDuration"])
         for part in matchData["participants"]:
             if part["championId"] == championsPlayed[z]:
                 championId.append(part["championId"])
@@ -214,10 +216,12 @@ def lolStats(username):
     message = message + f'Match Stats für die letzten 50 Games: \nKDA: **{"{:.2f}".format((mean(kills) + mean(assists)) / mean(deaths))}** - {mean(kills)} / {mean(deaths)} / {mean(assists)}\n'
 
     #adding totalDamageDealt to message
-    message = message + f'Total Damage dealt to Champions: **{"{:.2f}".format(mean(totalDamageDealt))}**\n'
+    message = message + f'DPS: **{"{:.2f}".format(mean(totalDamageDealt) / (mean(gameLength) / 60)) }**\n'
 
     #adding VisionScore to message
-    message = message + f'Vision Score: **{"{:.2f}".format(mean(visionScore))}**'
+    message = message + f'Vision Score: **{"{:.2f}".format(mean(visionScore))}** \n'
+
+    message = message + f'Durchschnittliche Spiellänge: **{"{:.2f}".format(mean(gameLength) / 60)} min.**'
 
     #sending message text
     return(message)

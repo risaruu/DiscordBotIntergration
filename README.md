@@ -1,4 +1,4 @@
-# DiscordBotIntergration - learning to code a Discord Bot
+# DiscordBotIntergration - learning to code a Discord Bot 
 
 ## By Damjan Petrovic
 
