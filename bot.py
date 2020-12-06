@@ -116,6 +116,16 @@ async def lolStats(ctx, *, username):
     winrate = ""
     noRanked = False
 
+    games = []
+    championId = []
+    championsPlayed = []
+    kills = []
+    deaths = []
+    assists = []
+    totalDamageDealt = []
+    visionScore = []
+
+    #try to always get the solo/duo Ranked stats
     try:
         if summonerDataRanked[0]["queueType"] == "RANKED_SOLO_5x5":
             queue = "Ranked Solo/Duo"
@@ -128,12 +138,40 @@ async def lolStats(ctx, *, username):
     except:
         noRanked = True
 
-    message = message + f'{summonerData["name"]} ist gerade Lv. {summonerData["summonerLevel"]} \n\n'
-    if noRanked == False:
-        message = message + f'Stats in den letzten 50 Games für: {queue} \nRank: {rank} mit einer Winrate von {winrate}%'
-    else:
-        message = message + f'Dieser Spieler hat keine Ranked Games gemacht :C'
+    # gettint the match history and creating a list of the champions played to later get specific stats out of the match stats
+    matchHistory = getMatchHistory(username)
+    for each in matchHistory["matches"]:
+        games.append(each["gameId"])
+        championsPlayed.append(each["champion"])
 
+    for z in range(0, 10):
+        matchData = getMatchStats(games[z])
+        for part in matchData["participants"]:
+            if part["championId"] == championsPlayed[z]:
+                championId.append(part["championId"])
+                kills.append(part["stats"]["kills"])
+                deaths.append(part["stats"]["deaths"])
+                assists.append(part["stats"]["assists"])
+                totalDamageDealt.append(part["stats"]["totalDamageDealtToChampions"])
+                visionScore.append(part["stats"]["visionScore"])
+
+    #creating the message text
+    message = message + f'**{summonerData["name"]}** ist gerade Lv. {summonerData["summonerLevel"]} \n\n'
+    if noRanked == False:
+        message = message + f'Stats in den letzten 50 Games für: {queue} \nRank: **{rank}** mit einer Winrate von **{winrate}%** \n\n'
+    else:
+        message = message + f'Dieser Spieler hat keine Ranked Games gemacht :C\n'
+
+    #adding KDA to message
+    message = message + f'Match Stats für die letzten 50 Games: \nKDA: **{"{:.2f}".format((getMean(kills) + getMean(assists)) / getMean(deaths))}** - {getMean(kills)} / {getMean(deaths)} / {getMean(assists)}\n'
+
+    #adding totalDamageDealt to message
+    message = message + f'Total Damage dealt to Champions: **{"{:.2f}".format(getMean(totalDamageDealt))}**\n'
+
+    #adding VisionScore to message
+    message = message + f'Vision Score: **{"{:.2f}".format(getMean(visionScore))}**'
+
+    #sending message text
     await ctx.send(message)
 
 client.run(token)
